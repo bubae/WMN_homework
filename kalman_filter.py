@@ -1,6 +1,7 @@
 import random
 import numpy
 import pylab
+import init_path
 import readData
 
 class KalmanFilter(object):
@@ -24,7 +25,7 @@ class KalmanFilter(object):
 
 if __name__ == "__main__":
 
-    sensorData = readData.read_sensor_data("data/temp.txt");
+    sensorData = readData.read_sensor_data("server/data/temp.txt");
     print sensorData.accelerometers
     iteration_count = sensorData.num_data
 
@@ -41,7 +42,7 @@ if __name__ == "__main__":
 
     # The smaller this number, the fewer fluctuations, but can also venture off
     # course...
-    process_variance = 1.5e-3
+    process_variance = 5.0e-3
     estimated_measurement_variance = measurement_standard_deviation ** 2  # 0.05 ** 2
 
     print measurement_standard_deviation
@@ -69,7 +70,7 @@ if __name__ == "__main__":
     pylab.plot(noise_accel_x, color='r', label='noisy x')
     # pylab.plot(noise_accel_y, color='r', label='noisy y')
     # pylab.plot(noise_accel_z, color='r', label='noisy z')
-    # pylab.plot(accelerometers_X, '-b', label='a posteri estimate x')
+    pylab.plot(accelerometers_X, '-b', label='a posteri estimate x')
     # pylab.plot(accelerometers_Y, '-b', label='a posteri estimate y')
     # pylab.plot(accelerometers_Z, '-b', label='a posteri estimate z')
     # pylab.plot(actual_values, color='g', label='truth value')

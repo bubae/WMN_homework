@@ -7,157 +7,114 @@ import tools
 import shutil
 
 # category = ['center', 'left', 'right', 'up', 'down', 'left_r', 'right_r']
-mode = "test"
+# mode = "test"
+
+testRatio = 0.2
 
 active_class = ['stop', 'motion']
-motion_class = ['left', 'right', 'left_r', 'right_r', 'up', 'down']
-
-# def test_labeling(filePath):
-# 	label_data = [[61, 97, 1], [146, 180, 2], [217, 240, 2], [276, 302, 1], [331, 363, 1], [401, 439, 2], [463, 501, 2], [533, 559, 1], [586, 623, 1], [638, 683, 2], [703, 739, 2], [761, 795, 1 ], [915, 942, 7], [967, 994, 8]]
-# 	label = tools.labeling(label_data)
-
-# 	sensorData = readData.read_sensor_data(filePath);
-
-# 	f_out = open("processed_data/out.txt", "w")
-
-# 	# print sensorData.accelerometers
-
-# 	for j in xrange(len(sensorData.accelerometers)):
-# 		combined_data = np.append(np.append(sensorData.accelerometers[j], sensorData.gyroscopes[j], axis=0), [label[j]], axis=0)
-# 		f_out.write(' '.join([str(x) for x in combined_data]) )
-# 		f_out.write('\n')
-# 	f_out.close();
-
-def combine_all_train():
-	
-	fileName = [x[:-4] for x in os.listdir('processed_data/' +mode)];
-	filePath = [os.path.join("processed_data", mode, x) for x in os.listdir('data/'+mode)];
-
-	f_out = open("processed_data/all_train.txt", "w")	
-	for i in xrange(len(fileName)):
-
-		# if fileName[i] == "center":
-		# 	label = 0
-		# else:
-		# 	label = 1
-
-		label = category.index(fileName[i]);
-		sensorData = readData.read_sensor_data(filePath[i]);
-
-		for j in xrange(len(sensorData.accelerometers)):
-			combined_data = np.append(np.append(sensorData.accelerometers[j], sensorData.gyroscopes[j], axis=0), [label], axis=0)
-			f_out.write(' '.join([str(x) for x in combined_data]) )
-			f_out.write('\n')
-
-	f_out.close()
-
+motion_class = ['left', 'right', 'left_r', 'right_r', 'up', 'down', 'arm_down', 'arm_up']
 
 def copy_motion_data():
 	for category in motion_class:
-		fileName = [x for x in os.listdir('data/' + mode + '/' + category)];
-		filePath = [os.path.join("data", mode, category, x) for x in os.listdir('data/' + mode + '/' + category)];
+		fileName = [x for x in os.listdir('data/train/' + category)];
+		filePath = [os.path.join("data", "train", category, x) for x in os.listdir('data/train/' + category)];
 		for i in xrange(len(filePath)):
-			shutil.copy(filePath[i], os.path.join("data", mode, "motion", fileName[i]))
+			shutil.copy(filePath[i], os.path.join("data", "train", "motion", fileName[i]))
+
+def funccc(outFile, label, index, filePath):
+	f_out = open(os.path.join("data", "processed_data", outFile+".txt"), "w")
+
+	for i in index:
+		sensorData = readData.read_sensor_data(filePath[i]);
+
+		for j in xrange(0, int(len(sensorData.all_features)/30)):
+
+			segment_data = sensorData.all_features[j*30:(j+1)*30];
+
+			for k in xrange(30):
+				combined_data = np.append(segment_data[k], [label], axis=0)
+
+				f_out.write(' '.join([str(x) for x in combined_data]) )
+				f_out.write('\n')		
+	f_out.close();
+
 
 def first_class_labeling():
+
 	for category in active_class:	
 
-		f_out = open(os.path.join("data", "processed_data", category+".txt"), "w")
 		label = active_class.index(category);
-		fileName = [x[:-4] for x in os.listdir('data/' + mode + '/' + category)];
-		filePath = [os.path.join("data", mode, category, x) for x in os.listdir('data/' + mode + '/' + category)];
+		fileName = [x[:-4] for x in os.listdir('data/train/' + category)];
+		filePath = [os.path.join("data", "train", category, x) for x in os.listdir('data/train/' + category)];
 
-		for i in xrange(len(fileName)):
-			sensorData = readData.read_sensor_data(filePath[i]);
+		numData = len(fileName)
+		numTest = int(numData * testRatio)
+		numTrain = numData - numTest
+		temp_arr = np.arange(0, numData)
+		mask = np.ones(temp_arr.shape, dtype=bool)
+		testIndex = np.random.choice(len(temp_arr), numTest)
+		mask[testIndex] = 0
+		trainIndex = temp_arr[mask]
 
-			for j in xrange(0, int(len(sensorData.all_features)/30)):
+		funccc("train_"+category, label, trainIndex, filePath)
+		funccc("test_"+category, label, testIndex, filePath)
 
-				segment_data = sensorData.all_features[j*30:(j+1)*30];
-
-				for k in xrange(30):
-					combined_data = np.append(segment_data[k], [label], axis=0)
-
-					f_out.write(' '.join([str(x) for x in combined_data]) )
-					f_out.write('\n')
-
-		f_out.close();
-
-	f_class_all_training()
+	f_class_all_training("train")
+	f_class_all_training("test")
 
 def second_class_labeling():
 	for category in motion_class:	
 
-		f_out = open(os.path.join("data", "processed_data", category+".txt"), "w")
+		# f_out = open(os.path.join("data", "processed_data", category+".txt"), "w")
 		label = motion_class.index(category);
-		fileName = [x[:-4] for x in os.listdir('data/' + mode + '/'+ category)];
-		filePath = [os.path.join("data",mode, category, x) for x in os.listdir('data/' + mode + '/'+ category)];
+		fileName = [x[:-4] for x in os.listdir('data/train/' + category)];
+		filePath = [os.path.join("data", "train", category, x) for x in os.listdir('data/train/' + category)];
 
-		for i in xrange(len(fileName)):
-			sensorData = readData.read_sensor_data(filePath[i]);
+		numData = len(fileName)
+		numTest = int(numData * testRatio)
+		numTrain = numData - numTest
+		temp_arr = np.arange(0, numData)
+		mask = np.ones(temp_arr.shape, dtype=bool)
+		testIndex = np.random.choice(len(temp_arr), numTest)
+		mask[testIndex] = 0
+		trainIndex = temp_arr[mask]
 
-			for j in xrange(0, int(len(sensorData.all_features)/30)):
+		funccc("train_"+category, label, trainIndex, filePath)
+		funccc("test_"+category, label, testIndex, filePath)
 
-				segment_data = sensorData.all_features[j*30:(j+1)*30];
 
-				for k in xrange(30):
-					combined_data = np.append(segment_data[k], [label], axis=0)
+	s_class_all_training("train")
+	s_class_all_training("test")
 
-					f_out.write(' '.join([str(x) for x in combined_data]) )
-					f_out.write('\n')
+def f_class_all_training(mode):
 
-		f_out.close();
+	f_out = open(os.path.join("data", "processed_data", "all_"+ mode +"_active.txt"), "w")
 
-	s_class_all_training()
-
-def f_class_all_training():
 	for category in active_class:
-		f_out = open(os.path.join("data", "processed_data", "all_"+ mode +"_active.txt"), "w")
-		filePath = [os.path.join("data","processed_data", x+'.txt') for x in active_class];
+		filePath = [os.path.join("data","processed_data", mode+ '_' + x +'.txt') for x in active_class];
 
 		for path in filePath:
 			with open(path) as infile:
 				for line in infile:
 					f_out.write(line)
 
-def s_class_all_training():
+	f_out.close();
+
+def s_class_all_training(mode):
+
+	f_out = open(os.path.join("data", "processed_data", "all_"+ mode +"_motion.txt"), "w")
 	for category in motion_class:
-		f_out = open(os.path.join("data", "processed_data", "all_"+ mode +"_motion.txt"), "w")
-		filePath = [os.path.join("data","processed_data", x+'.txt') for x in motion_class];
+		filePath = [os.path.join("data","processed_data", mode+ '_' + x +'.txt') for x in motion_class];
 
 		for path in filePath:
 			with open(path) as infile:
 				for line in infile:
 					f_out.write(line)
+
+	f_out.close();
 
 if __name__ == "__main__":
 
 	copy_motion_data();
 	first_class_labeling();
 	second_class_labeling();
-	# fileName = [x[:-4] for x in os.listdir('data/train')];
-	# filePath = [os.path.join("data","train", x) for x in os.listdir('data/train')];
-	# fileDesPath = [os.path.join("processed_data", "train", x) for x in os.listdir('data/train')];
-
-
-	# for i in xrange(len(fileName)):
-	# 	# if fileName[i] == "center":
-	# 	# 	label = 0
-	# 	# else:
-	# 	# 	label = 1
-
-	# 	label = category.index(fileName[i]);
-	# 	print label, fileName[i], filePath[i]
-	# 	sensorData = readData.read_sensor_data(filePath[i]);
-
-	# 	f_out = open(fileDesPath[i], "w")
-
-	# 	# print sensorData.accelerometers
-
-	# 	for j in xrange(len(sensorData.accelerometers)):
-	# 		combined_data = np.append(np.append(sensorData.accelerometers[j], sensorData.gyroscopes[j], axis=0), [label], axis=0)
-	# 		f_out.write(' '.join([str(x) for x in combined_data]) )
-	# 		f_out.write('\n')
-	# 	f_out.close();
-
-	# combine_all_train()
-	# test_labeling("data/temp.txt")

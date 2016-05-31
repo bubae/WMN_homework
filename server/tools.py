@@ -14,9 +14,9 @@ def data_processing(sensor_data, timesteps, data_dim, nb_classes):
 	y_data = np.zeros((num_data, nb_classes));
 
 	for i in xrange(0, num_data):
-		X_data[i] = sensor_data.all_features[i*30:(i+1)*30]
+		X_data[i] = sensor_data.all_features[i*timesteps:(i+1)*timesteps]
 		tmpArr = np.zeros(nb_classes)
-		tmpArr[int(Labels[i*30])] = 1;
+		tmpArr[int(Labels[i*timesteps])] = 1;
 		y_data[i] = tmpArr
 
 	return X_data, y_data

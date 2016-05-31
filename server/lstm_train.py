@@ -12,7 +12,7 @@ import modelSetting as setting
 np.set_printoptions(threshold=np.nan)
 
 active_class = ['stop', 'motion']
-motion_class = ['left', 'right', 'left_r', 'right_r', 'up', 'down']
+motion_class = ['left', 'right', 'left_r', 'right_r', 'up', 'down', 'arm_down', 'arm_up']
 
 
 # def data_processing(sensor_data, timesteps, data_dim, nb_classes):
@@ -61,7 +61,7 @@ def active_learning(timesteps, data_dim, nb_classes):
 
 	model = build_model(timesteps, data_dim, nb_classes)
 
-	model.fit(X_train, y_train, batch_size=32, nb_epoch=3, validation_data=(X_test, y_test))
+	model.fit(X_train, y_train, batch_size=32, nb_epoch=1, validation_data=(X_test, y_test))
 
 	fileNameH5 = "active_model_weight.h5"
 	fileNameJSON = "active_model_config.json"
@@ -81,7 +81,7 @@ def motion_learning(timesteps, data_dim, nb_classes):
 
 	model = build_model(timesteps, data_dim, nb_classes)
 
-	model.fit(X_train, y_train, batch_size=32, nb_epoch=3, validation_data=(X_test, y_test))
+	model.fit(X_train, y_train, batch_size=32, nb_epoch=1, validation_data=(X_test, y_test))
 
 	fileNameH5 = "motion_model_weight.h5"
 	fileNameJSON = "motion_model_config.json"
@@ -95,7 +95,7 @@ def motion_learning(timesteps, data_dim, nb_classes):
 if __name__ == "__main__":
 
 	active_learning(30, 6, 2);
-	motion_learning(30, 6, 6);
+	motion_learning(30, 6, len(motion_class));
 
 
 
