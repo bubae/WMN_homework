@@ -61,13 +61,13 @@ def active_learning(timesteps, data_dim, nb_classes):
 
 	model = build_model(timesteps, data_dim, nb_classes)
 
-	model.fit(X_train, y_train, batch_size=32, nb_epoch=1, validation_data=(X_test, y_test))
+	model.fit(X_train, y_train, batch_size=32, nb_epoch=3, validation_data=(X_test, y_test))
 
 	fileNameH5 = "active_model_weight.h5"
 	fileNameJSON = "active_model_config.json"
 
 	filePath = os.path.join("result", fileNameH5);
-	model.save_weights(filePath)
+	model.save_weights(filePath, overwrite=True)
 	filePath = os.path.join("result", fileNameJSON);
 	open(filePath, 'w').write(model.to_json())
 
@@ -81,13 +81,13 @@ def motion_learning(timesteps, data_dim, nb_classes):
 
 	model = build_model(timesteps, data_dim, nb_classes)
 
-	model.fit(X_train, y_train, batch_size=32, nb_epoch=1, validation_data=(X_test, y_test))
+	model.fit(X_train, y_train, batch_size=32, nb_epoch=3, validation_data=(X_test, y_test))
 
 	fileNameH5 = "motion_model_weight.h5"
 	fileNameJSON = "motion_model_config.json"
 
 	filePath = os.path.join("result", fileNameH5);
-	model.save_weights(filePath)
+	model.save_weights(filePath, overwrite=True)
 	filePath = os.path.join("result", fileNameJSON);
 	open(filePath, 'w').write(model.to_json())
 

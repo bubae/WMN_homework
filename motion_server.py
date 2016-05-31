@@ -12,6 +12,9 @@ from time import ctime, gmtime, strftime
 from keras.models import Sequential, model_from_json
 from keras.layers import LSTM, Dense
 
+active_class = ['stop', 'motion']
+motion_class = ['left', 'right', 'left_r', 'right_r', 'up', 'down', 'arm_down', 'arm_up']
+
 print np.version.version
 print "model load..."
 filePath = os.path.join("server", "result", "active_model_config.json");
@@ -33,12 +36,14 @@ sensorWindow = np.zeros((1, winSize, data_dim));
 sensorWindow[0][0:29] = sensorWindow[0][1:30]
 
 # print "test"
-sensor_test_data = readData.read_sensor_data("server/data/processed_data/all_test_motion.txt");
-X_data, y_data = tools.data_processing(sensor_test_data, 30, 6, 6)
-# print X_data.shape
-result = motion_model.predict(X_data[0:1])
+# sensor_test_data = readData.read_sensor_data("server/data/processed_data/all_test_motion.txt");
+# X_data, y_data = tools.data_processing(sensor_test_data, 30, 6, 8)
+# # print X_data.shape
+# result = motion_model.predict(X_data[0:1])
+# index = np.where(result==max(result))[0][0]
 
-print result, sensorWindow.shape
+# print motion_class[index]
+# print result, sensorWindow.shape
 
 
 # 호스트, 포트와 버퍼 사이즈를 지정
@@ -80,7 +85,14 @@ while connection_list:
                         sensorWindow[0][0:29] = sensorWindow[0][1:30]
                         sensorWindow[0][29] = split_data
     
-                    print motion_model.predict(sensorWindow)
+                    # softmax_motion = motion_model.predict(sensorWindow)
+                    # print max(softmax_motion[0])
+                    softmax_active = active_model.predict(sensorWindow)
+                    a_index = np.where(softmax_active[0]==max(softmax_active[0]))[0][0]
+                    # print max(softmax_active), active_class[index]
+                    softmax_motion = motion_model.predict(sensorWindow)
+                    m_index = np.where(softmax_motion[0]==max(softmax_motion[0]))[0][0]
+                    print max(softmax_active[0]), active_class[a_index], max(softmax_motion[0]), motion_class[m_index]
                 else:
                     connection_list.remove(sock)
                     sock.close()

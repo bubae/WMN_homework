@@ -31,7 +31,9 @@ class DataSet(object):
 		self._num_data = num_data
 		self._kalman_accelerometers = []
 		self._kalman_gyroscopes = []
+		self._kalman_features = []
 
+		# self.kalman_filtering();
 	@property
 	def accelerometers(self):
 		return self._accelerometers
@@ -52,18 +54,54 @@ class DataSet(object):
 	def num_data(self):
 		return self._num_data
 
-	def kalman_filtering(self, process_variance):
-		iteration_count = self.num_data
+	@property
+	def kalman_features(self):
+		return self._kalman_features
+	
 
-		noise_accel_x = [x[0] for x in sensorData.accelerometers]
-		noise_accel_y = [x[1] for x in sensorData.accelerometers]
-		noise_accel_z = [x[2] for x in sensorData.accelerometers]
+	def kalman_filtering(self, features):
+		iteration_count = len(features)
+
+		noise_accel_x = [x[0] for x in features]
+		noise_accel_y = [x[1] for x in features]
+		noise_accel_z = [x[2] for x in features]
+
+		noise_gyro_x = [x[3] for x in features]
+		noise_gyro_y = [x[4] for x in features]
+		noise_gyro_z = [x[5] for x in features]
 
 		measurement_standard_deviation = numpy.std([random.random() * 2.0 - 1.0 for j in xrange(iteration_count)])
 		estimated_measurement_variance = measurement_standard_deviation ** 2  # 0.05 ** 2
 
-		process_variance = 1.5e-3
+		process_variance = 5.0e-3
 
+		kalman_filter_accel_X = KalmanFilter(process_variance, estimated_measurement_variance)
+		kalman_filter_accel_Y = KalmanFilter(process_variance, estimated_measurement_variance)
+		kalman_filter_accel_Z = KalmanFilter(process_variance, estimated_measurement_variance)
+
+		kalman_filter_gyro_X = KalmanFilter(process_variance, estimated_measurement_variance)
+		kalman_filter_gyro_Y = KalmanFilter(process_variance, estimated_measurement_variance)
+		kalman_filter_gyro_Z = KalmanFilter(process_variance, estimated_measurement_variance)
+
+		for iteration in xrange(1, iteration_count):
+			kalman_filter_accel_X.input_latest_noisy_measurement(noise_accel_x[iteration])			
+			kalman_filter_accel_Y.input_latest_noisy_measurement(noise_accel_y[iteration])
+			kalman_filter_accel_Z.input_latest_noisy_measurement(noise_accel_z[iteration])
+			kalman_filter_gyro_X.input_latest_noisy_measurement(noise_gyro_x[iteration])
+			kalman_filter_gyro_Y.input_latest_noisy_measurement(noise_gyro_y[iteration])
+			kalman_filter_gyro_Z.input_latest_noisy_measurement(noise_gyro_z[iteration])
+
+			accel_x = kalman_filter_accel_X.get_latest_estimated_measurement()
+			accel_y = kalman_filter_accel_Y.get_latest_estimated_measurement()
+			accel_z = kalman_filter_accel_Z.get_latest_estimated_measurement()
+			gyro_x = kalman_filter_gyro_X.get_latest_estimated_measurement()
+			gyro_y = kalman_filter_gyro_Y.get_latest_estimated_measurement()
+			gyro_z = kalman_filter_gyro_Z.get_latest_estimated_measurement()
+
+			self._kalman_features.append([accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z])
+
+		self._kalman_features = np.array(self._kalman_features)
+		
 def read_data_from_text(data_dir):
 	accelerometers = [];
 	gyroscopes = [];
