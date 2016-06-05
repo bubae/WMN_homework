@@ -27,13 +27,16 @@ def funccc(outFile, label, index, filePath):
 	for i in index:
 		sensorData = readData.read_sensor_data(filePath[i]);
 
-		for j in xrange(0, int(len(sensorData.all_features)/30)):
+		if int(len(sensorData.all_features)/30) < 1:
+			continue
+		# for j in xrange(0, int(len(sensorData.all_features)/30)):
+		for j in xrange(0, 1):
 
 			segment_data = sensorData.all_features[0:30];
 			kalman_data = readData.kalman_filtering(segment_data)
 			for k in xrange(30):
-				# combined_data = np.append(segment_data[k], [label], axis=0)
-				combined_data = np.append(kalman_data[k], [label], axis=0)
+				combined_data = np.append(segment_data[k], [label], axis=0)
+				# combined_data = np.append(kalman_data[k], [label], axis=0)
 
 				f_out.write(' '.join([str(x) for x in combined_data]) )
 				f_out.write('\n')		

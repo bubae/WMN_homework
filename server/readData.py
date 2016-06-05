@@ -68,7 +68,8 @@ def kalman_filtering(features):
 	kalman_features.append(features[0])
 	
 	noise_accel_x = [x[0] for x in features]
-	noise_accel_y = [x[1] for x in features]
+	noise_accel_y = [x[1] for
+	 x in features]
 	noise_accel_z = [x[2] for x in features]
 
 	noise_gyro_x = [x[3] for x in features]

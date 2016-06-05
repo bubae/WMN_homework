@@ -68,15 +68,15 @@ if __name__ == "__main__":
     # print sensorData
     pylab.figure()
     pylab.plot(noise_accel_x, color='r', label='noisy x')
-    # pylab.plot(noise_accel_y, color='r', label='noisy y')
-    # pylab.plot(noise_accel_z, color='r', label='noisy z')
+    # pylab.plot(noise_accel_y, color='g', label='noisy y')
+    # pylab.plot(noise_accel_z, color='b', label='noisy z')
     pylab.plot(accelerometers_X, '-b', label='a posteri estimate x')
     # pylab.plot(accelerometers_Y, '-b', label='a posteri estimate y')
     # pylab.plot(accelerometers_Z, '-b', label='a posteri estimate z')
     # pylab.plot(actual_values, color='g', label='truth value')
     pylab.legend()
-    pylab.xlabel('Iteration')
-    pylab.ylabel('Voltage')
+    pylab.xlabel('Time')
+    pylab.ylabel('Sensor Value')
     pylab.show()
 
 # import random

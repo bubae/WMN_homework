@@ -15,6 +15,9 @@ from keras.layers import LSTM, Dense
 active_class = ['stop', 'motion']
 motion_class = ['left', 'right', 'left_r', 'right_r', 'up', 'down', 'arm_down', 'arm_up']
 
+m_threshold = 0.97
+a_threshold = 0.97
+
 print np.version.version
 print "model load..."
 filePath = os.path.join("server", "result", "active_model_config.json");
@@ -92,7 +95,14 @@ while connection_list:
                     # print max(softmax_active), active_class[index]
                     softmax_motion = motion_model.predict(sensorWindow)
                     m_index = np.where(softmax_motion[0]==max(softmax_motion[0]))[0][0]
-                    print max(softmax_active[0]), active_class[a_index], max(softmax_motion[0]), motion_class[m_index]
+
+                    if a_index == 1:
+                        if max(softmax_motion[0]) > m_threshold:
+                            print motion_class[m_index], max(softmax_motion[0]) 
+                    else:
+                        if max(softmax_active[0]) > a_threshold:
+                            print active_class[a_index], max(softmax_active[0])
+
                 else:
                     connection_list.remove(sock)
                     sock.close()
