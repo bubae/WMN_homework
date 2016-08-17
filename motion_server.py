@@ -15,8 +15,8 @@ from keras.layers import LSTM, Dense
 active_class = ['stop', 'motion']
 motion_class = ['left', 'right', 'left_r', 'right_r', 'up', 'down', 'arm_down', 'arm_up']
 
-m_threshold = 0.97
-a_threshold = 0.97
+m_threshold = 0.94
+a_threshold = 0.94
 
 print np.version.version
 print "model load..."
@@ -52,7 +52,7 @@ sensorWindow[0][0:29] = sensorWindow[0][1:30]
 # 호스트, 포트와 버퍼 사이즈를 지정
 HOST = ''
 PORT = 3300
-BUFSIZE = 1024
+BUFSIZE = 4096
 ADDR = (HOST, PORT)
 
 serverSocket = socket(AF_INET, SOCK_STREAM)
@@ -83,6 +83,8 @@ while connection_list:
                     data_lines = data.split('\n')
                     for line in data_lines:
                         split_data = line.split(' ')
+                        # print line
+                        # print '/////////////////////////////////////////////////////////////'
                         if len(split_data) != 6: break
                         split_data = [float(x) for x in split_data]
                         sensorWindow[0][0:29] = sensorWindow[0][1:30]

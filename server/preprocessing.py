@@ -35,8 +35,8 @@ def funccc(outFile, label, index, filePath):
 			segment_data = sensorData.all_features[0:30];
 			kalman_data = readData.kalman_filtering(segment_data)
 			for k in xrange(30):
-				combined_data = np.append(segment_data[k], [label], axis=0)
-				# combined_data = np.append(kalman_data[k], [label], axis=0)
+				# combined_data = np.append(segment_data[k], [label], axis=0)
+				combined_data = np.append(kalman_data[k], [label], axis=0)
 
 				f_out.write(' '.join([str(x) for x in combined_data]) )
 				f_out.write('\n')		
@@ -120,5 +120,5 @@ def s_class_all_training(mode):
 if __name__ == "__main__":
 
 	copy_motion_data();
-	first_class_labeling();
+	# first_class_labeling();
 	second_class_labeling();
